@@ -1,0 +1,18 @@
+appId: com.magnetfinder.app
+productName: MagnetFinder
+directories:
+  buildResources: build
+  output: release
+files:
+  - out/**/*
+  - package.json
+mac:
+  target:
+    - dmg
+  category: public.app-category.utilities
+win:
+  target:
+    - nsis
+linux:
+  target:
+    - AppImage
