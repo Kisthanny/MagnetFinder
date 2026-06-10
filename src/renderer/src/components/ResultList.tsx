@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import type { NormalizedResult } from '@shared/types'
 import { isValidInfoHash } from '@shared/filter'
+import { useT } from '../i18n/I18nProvider'
 import { formatBytes } from '../format'
 
 export interface ResultListProps {
@@ -18,15 +19,16 @@ export function ResultList({
   onCopy,
   keyOf
 }: ResultListProps): JSX.Element {
+  const { t } = useT()
   return (
     <div className="result-list">
       <table>
         <thead>
           <tr>
-            <th className="col-name">名称</th>
-            <th className="col-res">清晰度</th>
-            <th className="col-size">体积</th>
-            <th className="col-seeders">做种</th>
+            <th className="col-name">{t('result.colName')}</th>
+            <th className="col-res">{t('result.colResolution')}</th>
+            <th className="col-size">{t('result.colSize')}</th>
+            <th className="col-seeders">{t('result.colSeeders')}</th>
             <th className="col-action"></th>
           </tr>
         </thead>
@@ -46,7 +48,7 @@ export function ResultList({
                   {r.resolution ? (
                     <span className="res-tag">{r.resolution}</span>
                   ) : (
-                    <span className="res-unknown">未知</span>
+                    <span className="res-unknown">{t('result.unknown')}</span>
                   )}
                 </td>
                 <td className="col-size">{formatBytes(r.sizeBytes)}</td>
@@ -58,10 +60,10 @@ export function ResultList({
                     type="button"
                     className="btn-copy"
                     disabled={!canCopy || copyingId === r.id}
-                    title={canCopy ? '复制磁力链接' : '该资源缺少有效 info_hash，无法复制'}
+                    title={canCopy ? t('result.copyTooltip') : t('result.unavailableTooltip')}
                     onClick={() => onCopy(r)}
                   >
-                    {copyingId === r.id ? '…' : canCopy ? '复制磁力' : '不可用'}
+                    {copyingId === r.id ? '…' : canCopy ? t('result.copy') : t('result.unavailable')}
                   </button>
                 </td>
               </tr>

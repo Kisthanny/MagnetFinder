@@ -9,6 +9,7 @@ import type {
   SearchResponse,
   SourceInfo
 } from '@shared/types'
+import type { Language, LanguageOption } from '@shared/i18n'
 
 const api = {
   getSources: (): Promise<SourceInfo[]> => ipcRenderer.invoke('sources:list'),
@@ -24,6 +25,19 @@ const api = {
     const listener = (_e: unknown, data: PollingUpdate): void => callback(data)
     ipcRenderer.on('polling:update', listener)
     return () => ipcRenderer.removeListener('polling:update', listener)
+  },
+  getLanguage: (): Promise<{ language: Language; supported: LanguageOption[] }> =>
+    ipcRenderer.invoke('i18n:get'),
+  setLanguage: (lang: Language): Promise<{ ok: boolean }> => ipcRenderer.invoke('i18n:set', lang),
+  onLanguageChanged: (callback: (lang: Language) => void): (() => void) => {
+    const listener = (_e: unknown, lang: Language): void => callback(lang)
+    ipcRenderer.on('i18n:changed', listener)
+    return () => ipcRenderer.removeListener('i18n:changed', listener)
+  },
+  onOpenSettings: (callback: () => void): (() => void) => {
+    const listener = (): void => callback()
+    ipcRenderer.on('settings:open', listener)
+    return () => ipcRenderer.removeListener('settings:open', listener)
   }
 }
 

@@ -10,6 +10,7 @@ import type {
   SearchResponse,
   SourceInfo
 } from '@shared/types'
+import type { Language, LanguageOption } from '@shared/i18n'
 
 declare global {
   interface Window {
@@ -21,6 +22,10 @@ declare global {
       startPolling: (config: PollingConfig) => Promise<{ ok: boolean; error?: string }>
       stopPolling: () => Promise<{ ok: boolean }>
       onPollingUpdate: (callback: (update: PollingUpdate) => void) => () => void
+      getLanguage: () => Promise<{ language: Language; supported: LanguageOption[] }>
+      setLanguage: (lang: Language) => Promise<{ ok: boolean }>
+      onLanguageChanged: (callback: (lang: Language) => void) => () => void
+      onOpenSettings: (callback: () => void) => () => void
     }
   }
 }

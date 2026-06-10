@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import type { SourceInfo } from '@shared/types'
-import { RESOLUTION_LABELS, RESOLUTIONS } from '@shared/filter'
+import { RESOLUTIONS } from '@shared/filter'
+import { useT } from '../i18n/I18nProvider'
 
 export interface SearchControlsProps {
   sources: SourceInfo[]
@@ -42,11 +43,12 @@ export function SearchControls(props: SearchControlsProps): JSX.Element {
     supportsEpisode,
     episodeHint
   } = props
+  const { t } = useT()
 
   return (
     <section className="controls">
       <div className="field sources">
-        <label className="field-label">搜索源</label>
+        <label className="field-label">{t('search.sourceLabel')}</label>
         <div className="source-chips">
           {sources.map((s) => {
             const active = selectedSourceIds.includes(s.id)
@@ -75,41 +77,41 @@ export function SearchControls(props: SearchControlsProps): JSX.Element {
         <input
           className="search-input"
           type="text"
-          placeholder="输入影视名称，例如：The Last of Us"
+          placeholder={t('search.placeholder')}
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           autoFocus
         />
         <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? '搜索中…' : '搜索'}
+          {loading ? t('search.searching') : t('search.button')}
         </button>
       </form>
 
       <div className="filters">
         <div className="field">
-          <label className="field-label">清晰度</label>
+          <label className="field-label">{t('search.resolutionLabel')}</label>
           <select
             className="select"
             value={resolution}
             onChange={(e) => onResolutionChange(e.target.value)}
             disabled={!supportsResolution}
           >
-            <option value="">全部</option>
+            <option value="">{t('search.resolutionAll')}</option>
             {RESOLUTIONS.map((r) => (
               <option key={r} value={r}>
-                {RESOLUTION_LABELS[r]}
+                {t(`resolution.${r}`)}
               </option>
             ))}
           </select>
         </div>
 
         <div className="field">
-          <label className="field-label">季（Season）</label>
+          <label className="field-label">{t('search.seasonLabel')}</label>
           <input
             className="select"
             type="number"
             min={1}
-            placeholder="如 1"
+            placeholder={t('search.seasonPlaceholder')}
             value={season}
             onChange={(e) => onSeasonChange(e.target.value)}
             disabled={!supportsSeason}
@@ -117,11 +119,11 @@ export function SearchControls(props: SearchControlsProps): JSX.Element {
         </div>
 
         <div className="field">
-          <label className="field-label">集（多集逗号分隔）</label>
+          <label className="field-label">{t('search.episodesLabel')}</label>
           <input
             className="select"
             type="text"
-            placeholder="如 1,2,3"
+            placeholder={t('search.episodesPlaceholder')}
             value={episodes}
             onChange={(e) => onEpisodesChange(e.target.value)}
             disabled={!supportsEpisode}

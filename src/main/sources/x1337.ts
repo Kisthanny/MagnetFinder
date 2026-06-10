@@ -1,3 +1,4 @@
+import { getCurrentMessages } from '../language'
 import type { SourceAdapter } from './types'
 
 /**
@@ -8,14 +9,17 @@ import type { SourceAdapter } from './types'
  *   1. 在 search() 中请求 https://1337x.to/search/<query>/1/ 并解析结果行；
  *   2. 在详情页解析 magnet 链接 / info_hash 后填充归一化结果；
  *   3. 在 buildMagnet() 中复用已解析的 magnet 或由 info_hash 生成。
+ *
+ * displayName 使用中性品牌名（不翻译）；面向用户的提示文案接入 i18n，
+ * 在主进程当前语言下解析。
  */
 export const x1337Adapter: SourceAdapter = {
   id: '1337x',
-  displayName: '1337X（占位 / 未实现）',
+  displayName: '1337X',
   capabilities: { resolution: true, season: true, episode: true },
 
   async search() {
-    throw new Error('1337X 源尚未实现，仅作为可扩展接口占位')
+    throw new Error(getCurrentMessages().sources.x1337NotImplemented)
   },
 
   async buildMagnet() {

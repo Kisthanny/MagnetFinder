@@ -3,12 +3,6 @@ import type { NormalizedResult } from './types'
 export const RESOLUTIONS = ['2160p', '1080p', '720p'] as const
 export type Resolution = (typeof RESOLUTIONS)[number]
 
-export const RESOLUTION_LABELS: Record<Resolution, string> = {
-  '2160p': '2160p (4K)',
-  '1080p': '1080p (Full HD)',
-  '720p': '720p (HD)'
-}
-
 export const ZERO_INFO_HASH = '0000000000000000000000000000000000000000'
 
 export function matchPattern(text: string, pattern: string): boolean {

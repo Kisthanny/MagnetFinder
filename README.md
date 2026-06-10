@@ -8,6 +8,7 @@
 - 针对单集查询的 **定时轮询**，发现新资源时提示
 - 可扩展的 **多源适配器** 接口（内置 The Pirate Bay，预留 1337X 等）
 - 通过 Electron 主进程代理第三方源请求，规避浏览器 CORS 限制
+- **多语言**：系统菜单「设置」可切换语言，内置简体中文 / English / 日本語 / Français / Español，默认跟随系统语言
 
 > 本工具仅生成与复制磁力链接，不内置下载功能。资源合法性与使用合规由使用者自行承担。
 
@@ -58,16 +59,35 @@ src/
       magnet.ts         # tracker 列表 + 磁力链接生成
   preload/
     index.ts            # contextBridge 暴露受控的 window.api
+  main/
+    menu.ts             # 本地化应用菜单（含「设置」入口）
+    settings.ts         # 语言偏好持久化（userData/settings.json）
   shared/               # 主进程与渲染层共享代码
     types.ts            # 归一化数据结构与 IPC 类型
     filter.ts           # 清晰度 / 季 / 集筛选、排序、info_hash 校验
+    i18n/               # 多语言资源与工具
+      index.ts          # 受支持语言、默认语言、系统语言解析、消息目录
+      messages.ts       # 以 zh-CN 为基准的 Messages 类型
+      locales/          # zh-CN / en / ja / fr / es 消息文件
   renderer/             # React 渲染层
     index.html
     src/
       App.tsx           # 主界面与状态编排
-      components/       # 搜索控件、结果列表
+      components/       # 搜索控件、结果列表、设置面板
+      i18n/             # I18nProvider 与 useT()
       styles.css
 ```
+
+## 多语言
+
+- 通过系统菜单「设置 / Settings」（快捷键 `Cmd/Ctrl + ,`）打开设置面板切换语言，切换即时生效。
+- 首次启动默认采用系统语言（`zh* / ja* / fr* / es*` 分别映射对应语言，其余回退英文）；之后沿用上次选择（持久化于 `userData/settings.json`）。
+- 语言偏好由主进程作为权威源，原生菜单与窗口标题随语言本地化。
+
+### 如何新增一种语言
+
+1. 在 `src/shared/i18n/locales/` 下新增 `<code>.ts`，`import type { Messages }` 并实现同一结构（缺漏 key 编译期即报错）。
+2. 在 `src/shared/i18n/index.ts` 的 `SUPPORTED_LANGUAGES`、`catalogs` 与 `Language` 类型中登记该语言；如需系统语言识别，在 `resolveSystemLanguage` 增加前缀映射。
 
 ## 如何新增一个搜索源
 

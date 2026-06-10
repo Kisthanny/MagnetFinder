@@ -9,6 +9,8 @@ import {
 } from '@shared/filter'
 import { SearchControls } from './components/SearchControls'
 import { ResultList } from './components/ResultList'
+import { SettingsPanel } from './components/SettingsPanel'
+import { useT } from './i18n/I18nProvider'
 import { formatTime } from './format'
 
 type Toast = { kind: 'success' | 'error' | 'info'; text: string } | null
@@ -23,6 +25,7 @@ function parseEpisodes(value: string): number[] {
 }
 
 export default function App(): JSX.Element {
+  const { t } = useT()
   const [sources, setSources] = useState<SourceInfo[]>([])
   const [selectedSourceIds, setSelectedSourceIds] = useState<string[]>([])
   const [query, setQuery] = useState('')
@@ -36,6 +39,7 @@ export default function App(): JSX.Element {
   const [errorText, setErrorText] = useState<string | null>(null)
   const [toast, setToast] = useState<Toast>(null)
   const [copyingId, setCopyingId] = useState<string | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const [polling, setPolling] = useState(false)
   const [intervalSec, setIntervalSec] = useState('60')
@@ -48,6 +52,10 @@ export default function App(): JSX.Element {
       const defaults = list.filter((s) => s.id === 'piratebay').map((s) => s.id)
       setSelectedSourceIds(defaults.length ? defaults : list.slice(0, 1).map((s) => s.id))
     })
+  }, [])
+
+  useEffect(() => {
+    return window.api.onOpenSettings(() => setSettingsOpen(true))
   }, [])
 
   useEffect(() => {
@@ -75,7 +83,7 @@ export default function App(): JSX.Element {
   const seasonNum = season.trim() ? Number(season) : null
   const episodeList = parseEpisodes(episodes)
   const episodeHint =
-    episodeList.length > 0 && seasonNum == null ? '按集筛选前必须先指定季数（Season）' : null
+    episodeList.length > 0 && seasonNum == null ? t('search.episodeNeedSeason') : null
 
   const filteredResults = useMemo(() => {
     let list = rawResults
@@ -96,11 +104,11 @@ export default function App(): JSX.Element {
 
   const doSearch = useCallback(async () => {
     if (!query.trim()) {
-      setToast({ kind: 'error', text: '请输入搜索关键词' })
+      setToast({ kind: 'error', text: t('toast.enterKeyword') })
       return
     }
     if (selectedSourceIds.length === 0) {
-      setToast({ kind: 'error', text: '请至少选择一个搜索源' })
+      setToast({ kind: 'error', text: t('toast.selectSource') })
       return
     }
     setLoading(true)
@@ -118,35 +126,36 @@ export default function App(): JSX.Element {
     } finally {
       setLoading(false)
     }
-  }, [query, selectedSourceIds])
+  }, [query, selectedSourceIds, t])
 
-  const doCopy = useCallback(async (result: NormalizedResult) => {
-    setCopyingId(result.id)
-    try {
-      const res = await window.api.copyMagnet(result)
-      if (res.ok) {
-        setToast({ kind: 'success', text: '磁力链接已复制到剪贴板' })
-      } else {
-        setToast({ kind: 'error', text: res.error ?? '复制失败' })
+  const doCopy = useCallback(
+    async (result: NormalizedResult) => {
+      setCopyingId(result.id)
+      try {
+        const res = await window.api.copyMagnet(result)
+        if (res.ok) {
+          setToast({ kind: 'success', text: t('toast.copied') })
+        } else {
+          setToast({ kind: 'error', text: res.error ?? t('toast.copyFailed') })
+        }
+      } catch (e) {
+        setToast({ kind: 'error', text: e instanceof Error ? e.message : String(e) })
+      } finally {
+        setCopyingId(null)
       }
-    } catch (e) {
-      setToast({ kind: 'error', text: e instanceof Error ? e.message : String(e) })
-    } finally {
-      setCopyingId(null)
-    }
-  }, [])
-
-  const canPoll = seasonNum != null && episodeList.length > 0
+    },
+    [t]
+  )
 
   const togglePolling = useCallback(async () => {
     if (polling) {
       await window.api.stopPolling()
       setPolling(false)
-      setToast({ kind: 'info', text: '已停止轮询' })
+      setToast({ kind: 'info', text: t('toast.pollStopped') })
       return
     }
-    if (!canPoll) {
-      setToast({ kind: 'error', text: '轮询需要指定季数与集数' })
+    if (!query.trim()) {
+      setToast({ kind: 'error', text: t('toast.enterKeyword') })
       return
     }
     const intervalMs = Math.max(5, Number(intervalSec) || 60) * 1000
@@ -160,11 +169,11 @@ export default function App(): JSX.Element {
     })
     if (res.ok) {
       setPolling(true)
-      setToast({ kind: 'info', text: `已开始轮询（每 ${intervalMs / 1000} 秒）` })
+      setToast({ kind: 'info', text: t('toast.pollStarted', { seconds: intervalMs / 1000 }) })
     } else {
-      setToast({ kind: 'error', text: res.error ?? '无法开始轮询' })
+      setToast({ kind: 'error', text: res.error ?? t('toast.pollCantStart') })
     }
-  }, [polling, canPoll, intervalSec, query, selectedSourceIds, seasonNum, episodeList, resolution])
+  }, [polling, intervalSec, query, selectedSourceIds, seasonNum, episodeList, resolution, t])
 
   useEffect(() => {
     const unsubscribe = window.api.onPollingUpdate((update: PollingUpdate) => {
@@ -185,18 +194,18 @@ export default function App(): JSX.Element {
         })
         setToast({
           kind: 'success',
-          text: `轮询发现 ${update.newResults.length} 条新资源`
+          text: t('toast.pollNewFound', { count: update.newResults.length })
         })
       }
     })
     return unsubscribe
-  }, [])
+  }, [t])
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>磁力搜索器</h1>
-        <p className="subtitle">多源磁力 / 种子搜索 · 清晰度 / 季 / 集筛选 · 一键复制磁力链接</p>
+        <h1>{t('app.title')}</h1>
+        <p className="subtitle">{t('app.subtitle')}</p>
       </header>
 
       <SearchControls
@@ -221,19 +230,17 @@ export default function App(): JSX.Element {
 
       <section className="polling-bar">
         <label className="poll-toggle">
-          <span>定时轮询（单集）</span>
+          <span>{t('poll.label')}</span>
           <button
             type="button"
             className={`btn-poll ${polling ? 'btn-poll-on' : ''}`}
             onClick={togglePolling}
-            disabled={!polling && !canPoll}
-            title={canPoll ? '' : '需指定季数与集数后才能轮询'}
           >
-            {polling ? '停止轮询' : '开始轮询'}
+            {polling ? t('poll.stop') : t('poll.start')}
           </button>
         </label>
         <label className="poll-interval">
-          间隔（秒）
+          {t('poll.intervalLabel')}
           <input
             type="number"
             min={5}
@@ -244,8 +251,8 @@ export default function App(): JSX.Element {
         </label>
         {polling && (
           <span className="poll-status">
-            <span className="dot-live" /> 轮询中
-            {lastPollAt ? ` · 最近 ${formatTime(lastPollAt)}` : ''}
+            <span className="dot-live" /> {t('poll.running')}
+            {lastPollAt ? ` · ${t('poll.lastAt', { time: formatTime(lastPollAt) })}` : ''}
           </span>
         )}
       </section>
@@ -253,20 +260,20 @@ export default function App(): JSX.Element {
       <section className="results">
         {errorText && <p className="hint hint-error">{errorText}</p>}
 
-        {loading && <div className="state-msg">正在搜索…</div>}
+        {loading && <div className="state-msg">{t('state.searching')}</div>}
 
         {!loading && searched && filteredResults.length === 0 && (
-          <div className="state-msg">未找到相关结果</div>
+          <div className="state-msg">{t('state.noResults')}</div>
         )}
 
         {!loading && !searched && (
-          <div className="state-msg state-empty">输入影视名称开始搜索</div>
+          <div className="state-msg state-empty">{t('state.empty')}</div>
         )}
 
         {filteredResults.length > 0 && (
           <>
             <div className="result-summary">
-              共 {filteredResults.length} 条结果（按做种数排序）
+              {t('result.summary', { count: filteredResults.length })}
             </div>
             <ResultList
               results={filteredResults}
@@ -280,6 +287,8 @@ export default function App(): JSX.Element {
       </section>
 
       {toast && <div className={`toast toast-${toast.kind}`}>{toast.text}</div>}
+
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }
