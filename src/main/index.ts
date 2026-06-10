@@ -78,6 +78,7 @@ function createWindow(): void {
   const devServerUrl = process.env['ELECTRON_RENDERER_URL']
   if (devServerUrl) {
     void mainWindow.loadURL(devServerUrl)
+    mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
     void mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }

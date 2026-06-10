@@ -41,5 +41,8 @@ export function applyApplicationMenu(messages: Messages, onOpenSettings: () => v
   // 标准编辑菜单（复制 / 粘贴等由 Electron 提供并随系统语言本地化）
   template.push({ role: 'editMenu' })
 
+  // 标准视图菜单（含「切换开发者工具」及 F12 / Cmd+Opt+I 快捷键，由 Electron 本地化）
+  template.push({ role: 'viewMenu' })
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }

@@ -89,6 +89,37 @@ src/
 1. 在 `src/shared/i18n/locales/` 下新增 `<code>.ts`，`import type { Messages }` 并实现同一结构（缺漏 key 编译期即报错）。
 2. 在 `src/shared/i18n/index.ts` 的 `SUPPORTED_LANGUAGES`、`catalogs` 与 `Language` 类型中登记该语言；如需系统语言识别，在 `resolveSystemLanguage` 增加前缀映射。
 
+## 调试
+
+开发模式（`npm run dev`）下内置了若干调试辅助，打包产物均不包含：
+
+### 渲染进程（界面）
+
+- 启动时会自动打开 Chrome DevTools（独立窗口）。
+- 也可用快捷键切换：macOS `Cmd+Opt+I`，Windows/Linux `Ctrl+Shift+I` 或 `F12`（来自菜单栏的「视图 / View」）。
+- 用途与浏览器一致：Console、Elements、Sources 断点等。
+
+### 主进程（Node：IPC / 搜索 / 轮询）
+
+主进程不在 Chromium 内，DevTools 的「Network」面板**看不到**主进程发起的 HTTP 请求（源请求都在 Node 端 `fetch`，见“CORS 规避”）。为此提供两种方式：
+
+- **HTTP 日志**：每次源请求都会记录。
+  - 终端（运行 `npm run dev` 的窗口）打印简洁摘要：
+
+    ```
+    [http] → GET https://thepiratebay.org/q.php?q=xxx
+    [http] ← 200 https://thepiratebay.org/q.php?q=xxx (412ms)
+    ```
+
+  - 完整的请求头 / 响应头 / 响应体写入工作区 `logs/dev.log`（已加入 `.gitignore`）。该文件采用环形缓冲，最多保留约 2000 行，不会无限增长。想实时跟随可用 `tail -f logs/dev.log`。
+- **断点调试主进程**：
+
+  ```bash
+  npm run dev:debug      # 主进程监听调试端口 9229
+  ```
+
+  然后用 Chrome / Edge 打开 `chrome://inspect`（或 `edge://inspect`）→ 勾选 Discover network targets → Configure 确认含 `localhost:9229` → 在 Remote Target 下点 `inspect` 连接；或在 VS Code / Cursor 用 `attach` 配置连 `9229`。需在启动首行即断点时，把参数改为 `--inspect-brk=9229`。
+
 ## 如何新增一个搜索源
 
 1. 在 `src/main/sources/` 下新建适配器文件，实现 `SourceAdapter` 接口：
