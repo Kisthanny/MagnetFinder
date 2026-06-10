@@ -6,6 +6,11 @@ directories:
 files:
   - out/**/*
   - package.json
+publish:
+  provider: github
+  owner: Kisthanny
+  repo: MagnetFinder
+  releaseType: draft
 mac:
   target:
     - dmg
