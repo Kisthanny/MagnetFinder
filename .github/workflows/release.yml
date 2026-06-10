@@ -17,10 +17,13 @@ jobs:
         include:
           - os: macos-latest
             target: --mac
+            artifact: release/*.dmg
           - os: windows-latest
             target: --win
+            artifact: release/*.exe
           - os: ubuntu-latest
             target: --linux
+            artifact: release/*.AppImage
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -38,9 +41,31 @@ jobs:
       - name: Compile (electron-vite build)
         run: npm run build
 
-      - name: Build & publish installer
-        run: npx --no-install electron-builder ${{ matrix.target }} --publish always
+      - name: Build installer
+        run: npx --no-install electron-builder ${{ matrix.target }} --publish never
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 未配置签名证书时跳过 macOS 自动签名，构建未签名包
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.os }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create GitHub Release (draft)
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          fail_on_unmatched_files: true
+          files: dist/**/*
