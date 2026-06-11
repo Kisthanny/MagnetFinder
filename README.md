@@ -120,6 +120,32 @@ src/
 
   然后用 Chrome / Edge 打开 `chrome://inspect`（或 `edge://inspect`）→ 勾选 Discover network targets → Configure 确认含 `localhost:9229` → 在 Remote Target 下点 `inspect` 连接；或在 VS Code / Cursor 用 `attach` 配置连 `9229`。需在启动首行即断点时，把参数改为 `--inspect-brk=9229`。
 
+## 代码规范与 PR 校验
+
+### 代码规范（ESLint）
+
+项目使用 ESLint（flat config，`eslint.config.mjs`）检查 TypeScript 与 React 代码：
+
+```bash
+npm run lint
+```
+
+主进程 / 预加载按 Node 环境、渲染层按浏览器环境 + React/Hooks 规则分别配置；`out/`、`release/`、`dist/`、`node_modules/` 已忽略。
+
+### PR 校验（GitHub Actions）
+
+`.github/workflows/pr-verify.yml` 会在**面向 `master` 的 Pull Request**（新建 / 追加提交 / 重开）上自动运行，依次执行：
+
+```
+npm ci → npm run lint → npm run typecheck → npm run build
+```
+
+任一步失败则校验失败。它只做静态检查与编译期验证，**不打包、不发布**。
+
+> 与发布流程的区别：`pr-verify.yml` 由 **PR 触发**、只校验；`release.yml` 由 **`v*` tag 触发**、在三平台构建并发布安装包到 Release。两者互不触发。
+
+该校验的 `verify` job 可在 `master` 分支的 ruleset 中被设为 **required status check**，从而阻止未通过校验的 PR 合并。
+
 ## 如何新增一个搜索源
 
 1. 在 `src/main/sources/` 下新建适配器文件，实现 `SourceAdapter` 接口：
