@@ -10,6 +10,7 @@ import type {
   SourceInfo
 } from '@shared/types'
 import type { Language, LanguageOption } from '@shared/i18n'
+import type { Theme } from '@shared/theme'
 
 const api = {
   getSources: (): Promise<SourceInfo[]> => ipcRenderer.invoke('sources:list'),
@@ -38,6 +39,19 @@ const api = {
     const listener = (): void => callback()
     ipcRenderer.on('settings:open', listener)
     return () => ipcRenderer.removeListener('settings:open', listener)
+  },
+  getTheme: (): Promise<{ theme: Theme; shouldUseDarkColors: boolean }> =>
+    ipcRenderer.invoke('theme:get'),
+  setTheme: (theme: Theme): Promise<{ ok: boolean }> => ipcRenderer.invoke('theme:set', theme),
+  onThemeChanged: (
+    callback: (state: { theme: Theme; shouldUseDarkColors: boolean }) => void
+  ): (() => void) => {
+    const listener = (
+      _e: unknown,
+      state: { theme: Theme; shouldUseDarkColors: boolean }
+    ): void => callback(state)
+    ipcRenderer.on('theme:changed', listener)
+    return () => ipcRenderer.removeListener('theme:changed', listener)
   }
 }
 

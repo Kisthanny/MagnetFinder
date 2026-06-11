@@ -1,6 +1,8 @@
 import type { JSX } from 'react'
 import { SUPPORTED_LANGUAGES, type Language } from '@shared/i18n'
+import { THEMES, type Theme } from '@shared/theme'
 import { useT } from '../i18n/I18nProvider'
+import { useTheme } from '../theme/ThemeProvider'
 
 export interface SettingsPanelProps {
   open: boolean
@@ -9,6 +11,7 @@ export interface SettingsPanelProps {
 
 export function SettingsPanel({ open, onClose }: SettingsPanelProps): JSX.Element | null {
   const { lang, t, setLanguage } = useT()
+  const { theme, setTheme } = useTheme()
 
   if (!open) return null
 
@@ -39,6 +42,21 @@ export function SettingsPanel({ open, onClose }: SettingsPanelProps): JSX.Elemen
             {SUPPORTED_LANGUAGES.map((option) => (
               <option key={option.code} value={option.code}>
                 {option.nativeName}
+              </option>
+            ))}
+          </select>
+          <label className="field-label" htmlFor="theme-select">
+            {t('settings.themeLabel')}
+          </label>
+          <select
+            id="theme-select"
+            className="select"
+            value={theme}
+            onChange={(e) => setTheme(e.target.value as Theme)}
+          >
+            {THEMES.map((value) => (
+              <option key={value} value={value}>
+                {t(`theme.${value}`)}
               </option>
             ))}
           </select>

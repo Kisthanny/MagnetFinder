@@ -62,7 +62,13 @@ const messages: Messages = {
   settings: {
     title: 'Ajustes',
     languageLabel: 'Idioma',
+    themeLabel: 'Tema',
     close: 'Cerrar'
+  },
+  theme: {
+    light: 'Claro',
+    dark: 'Oscuro',
+    system: 'Seguir el sistema'
   },
   menu: {
     settings: 'Ajustes…'

@@ -2,8 +2,11 @@ import { join } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 import { app } from 'electron'
 
+import type { Theme } from '@shared/theme'
+
 export interface AppSettings {
   language?: string
+  theme?: Theme
 }
 
 function settingsFile(): string {

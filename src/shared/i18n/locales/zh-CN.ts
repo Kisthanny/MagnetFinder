@@ -59,7 +59,13 @@ const messages = {
   settings: {
     title: '设置',
     languageLabel: '语言',
+    themeLabel: '主题',
     close: '关闭'
+  },
+  theme: {
+    light: '亮色',
+    dark: '暗色',
+    system: '跟随系统'
   },
   menu: {
     settings: '设置…'
