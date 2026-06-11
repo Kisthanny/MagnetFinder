@@ -11,6 +11,7 @@ import type {
   SourceInfo
 } from '@shared/types'
 import type { Language, LanguageOption } from '@shared/i18n'
+import type { Theme } from '@shared/theme'
 
 declare global {
   interface Window {
@@ -26,6 +27,11 @@ declare global {
       setLanguage: (lang: Language) => Promise<{ ok: boolean }>
       onLanguageChanged: (callback: (lang: Language) => void) => () => void
       onOpenSettings: (callback: () => void) => () => void
+      getTheme: () => Promise<{ theme: Theme; shouldUseDarkColors: boolean }>
+      setTheme: (theme: Theme) => Promise<{ ok: boolean }>
+      onThemeChanged: (
+        callback: (state: { theme: Theme; shouldUseDarkColors: boolean }) => void
+      ) => () => void
     }
   }
 }

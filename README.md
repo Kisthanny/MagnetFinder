@@ -9,6 +9,7 @@
 - 可扩展的 **多源适配器** 接口（内置 The Pirate Bay，预留 1337X 等）
 - 通过 Electron 主进程代理第三方源请求，规避浏览器 CORS 限制
 - **多语言**：系统菜单「设置」可切换语言，内置简体中文 / English / 日本語 / Français / Español，默认跟随系统语言
+- **主题切换**：设置面板可选亮色 / 暗色 / 跟随系统，即时生效并持久化
 
 > 本工具仅生成与复制磁力链接，不内置下载功能。资源合法性与使用合规由使用者自行承担。
 
@@ -88,6 +89,13 @@ src/
 
 1. 在 `src/shared/i18n/locales/` 下新增 `<code>.ts`，`import type { Messages }` 并实现同一结构（缺漏 key 编译期即报错）。
 2. 在 `src/shared/i18n/index.ts` 的 `SUPPORTED_LANGUAGES`、`catalogs` 与 `Language` 类型中登记该语言；如需系统语言识别，在 `resolveSystemLanguage` 增加前缀映射。
+
+## 主题切换
+
+- 通过系统菜单「设置 / Settings」（快捷键 `Cmd/Ctrl + ,`）打开设置面板，在语言选项下方切换主题。
+- 三个选项：**亮色 / 暗色 / 跟随系统**；切换即时生效，偏好持久化于 `userData/settings.json`。
+- 首次启动默认「跟随系统」；主进程通过 Electron `nativeTheme` 解析系统外观，并在 OS 切换亮/暗时实时更新界面（macOS / Windows 支持较好；部分 Linux 桌面环境信号可能不完整，可手动选亮/暗）。
+- 配色由 `styles.css` 中 `:root[data-theme='light'|'dark']` 的 CSS 变量驱动。
 
 ## 调试
 

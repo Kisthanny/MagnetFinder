@@ -1,4 +1,6 @@
-:root {
+/* 无 data-theme 时兜底为暗色，避免首帧裸样式 */
+:root,
+:root[data-theme='dark'] {
   --bg: #0f1117;
   --bg-elevated: #171a23;
   --bg-input: #1e2230;
@@ -10,7 +12,35 @@
   --success: #3ecf8e;
   --error: #ff6b6b;
   --warn: #ffb454;
+  --on-primary: #ffffff;
+  --on-success: #06281a;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --shadow: rgba(0, 0, 0, 0.5);
+  --accent-muted: rgba(108, 140, 255, 0.14);
+  --error-muted-bg: rgba(255, 107, 107, 0.18);
+  --error-muted-text: #ffb3b3;
   --radius: 10px;
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f5f8;
+  --bg-elevated: #ffffff;
+  --bg-input: #ebedf2;
+  --border: #d5dae3;
+  --text: #1a1d26;
+  --text-dim: #5c6370;
+  --accent: #4a6fff;
+  --accent-hover: #3a5fef;
+  --success: #1a9f63;
+  --error: #d94040;
+  --warn: #c47d00;
+  --on-primary: #ffffff;
+  --on-success: #ffffff;
+  --overlay: rgba(0, 0, 0, 0.35);
+  --shadow: rgba(0, 0, 0, 0.12);
+  --accent-muted: rgba(74, 111, 255, 0.12);
+  --error-muted-bg: rgba(217, 64, 64, 0.12);
+  --error-muted-text: #b52e2e;
 }
 
 * {
@@ -125,7 +155,7 @@ body {
 
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-primary);
   border: none;
   border-radius: var(--radius);
   padding: 0 24px;
@@ -217,9 +247,9 @@ body {
 }
 
 .btn-poll-on {
-  background: rgba(255, 107, 107, 0.18);
+  background: var(--error-muted-bg);
   border-color: var(--error);
-  color: #ffb3b3;
+  color: var(--error-muted-text);
 }
 
 .poll-interval {
@@ -349,7 +379,7 @@ tbody tr:hover {
   margin-right: 6px;
   font-size: 10px;
   font-weight: 700;
-  color: #06281a;
+  color: var(--on-success);
   background: var(--success);
   padding: 1px 5px;
   border-radius: 4px;
@@ -358,7 +388,7 @@ tbody tr:hover {
 .res-tag {
   font-size: 12px;
   color: var(--accent);
-  background: rgba(108, 140, 255, 0.14);
+  background: var(--accent-muted);
   padding: 2px 8px;
   border-radius: 6px;
 }
@@ -408,7 +438,7 @@ tbody tr:hover {
   padding: 11px 22px;
   border-radius: 10px;
   font-size: 14px;
-  color: #fff;
+  color: var(--on-primary);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   animation: slideup 0.2s ease;
 }
@@ -426,7 +456,7 @@ tbody tr:hover {
 
 .toast-success {
   background: var(--success);
-  color: #06281a;
+  color: var(--on-success);
 }
 
 .toast-error {
@@ -441,7 +471,7 @@ tbody tr:hover {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,7 +494,7 @@ tbody tr:hover {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px var(--shadow);
   overflow: hidden;
 }
 
@@ -499,7 +529,7 @@ tbody tr:hover {
   padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
 
 .modal-footer {

@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron'
 import {
   getMessages,
   isSupported,
@@ -12,6 +12,8 @@ import { pollingManager } from './polling'
 import { readSettings, writeSettings } from './settings'
 import { applyApplicationMenu } from './menu'
 import { getCurrentLanguage, setCurrentLanguage } from './language'
+import { getThemeState, initTheme, setTheme } from './theme'
+import { isValidTheme } from '@shared/theme'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -32,6 +34,23 @@ function setLanguage(lang: Language): void {
   writeSettings({ ...readSettings(), language: lang })
   applyLanguageToShell()
   mainWindow?.webContents.send('i18n:changed', lang)
+}
+
+function broadcastThemeChange(): void {
+  mainWindow?.webContents.send('theme:changed', getThemeState())
+}
+
+function registerThemeIpc(): void {
+  ipcMain.handle('theme:get', () => getThemeState())
+
+  ipcMain.handle('theme:set', (_e, theme: string) => {
+    if (!isValidTheme(theme)) {
+      return { ok: false }
+    }
+    setTheme(theme)
+    broadcastThemeChange()
+    return { ok: true }
+  })
 }
 
 function registerI18nIpc(): void {
@@ -86,8 +105,11 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   initLanguage()
+  initTheme()
   registerIpc(() => mainWindow)
   registerI18nIpc()
+  registerThemeIpc()
+  nativeTheme.on('updated', () => broadcastThemeChange())
   createWindow()
   applyLanguageToShell()
 
