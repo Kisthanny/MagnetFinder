@@ -1,6 +1,6 @@
 {
   "name": "magnet-finder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "有 GUI 的磁力链接（种子）搜索器，支持多源适配、清晰度/季/集筛选、磁力复制与单集轮询",
   "main": "./out/main/index.js",
   "author": "magnetFinder",
